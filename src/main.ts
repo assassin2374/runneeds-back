@@ -15,7 +15,7 @@ const port = process.env.PORT || 3000;
 let pgClient: Client;
 
 // Connectionを定義する
-(async () => {
+const pgConnect = (async () => {
   // データベース設定
   const client = new Client({
     host: "localhost",
