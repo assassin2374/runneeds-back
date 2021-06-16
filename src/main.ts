@@ -12,9 +12,10 @@ app.use(express.json());
 
 // port番号を指定
 const port = process.env.PORT || 3000;
+let pgClient: Client;
 
 // Connectionを定義する
-const pgConnect = async () => {
+(async () => {
   // データベース設定
   const client = new Client({
     host: "localhost",
@@ -25,8 +26,8 @@ const pgConnect = async () => {
   });
   // データベース接続
   await client.connect();
-  return client;
-};
+  pgClient = client;
+})();
 
 // eslint-disable-next-line @typescript-eslint/no-floating-promises
 // pgConnect();
@@ -44,8 +45,7 @@ app.get("/", async (req, res) => {
   const sqlQuery = {
     text: "SELECT * FROM users",
   };
-  const client = await pgConnect();
-  const result = await client.query<User>(sqlQuery);
+  const result = await pgClient.query<User>(sqlQuery);
   // User型に格納（created_at、updated_atが残るエラー）
   const users = result.rows.map((user) => {
     return {
@@ -66,11 +66,14 @@ app.get("/:id", async (req, res) => {
   const id = parseInt(req.params.id);
   // SQLクエリ実行
   const sqlQuery = {
-    text: "SELECT * FROM users WHERE id=($1)",
+    text: "SELECT * FROM users WHERE id=$1",
     values: [id],
   };
-  const client = await pgConnect();
-  const result = await client.query<User>(sqlQuery);
+  const result = await pgClient.query<User>(sqlQuery);
+  if (result.rowCount === 0) {
+    res.status(404).send();
+    return;
+  }
   // User型に格納（created_at、updated_atが残るエラー）
   const user = {
     id: result.rows[0].id,
@@ -86,8 +89,8 @@ app.get("/:id", async (req, res) => {
 
 // post作成
 app.post("/", async (req, res) => {
-  const user = req.body as User;
-  delete user.id;
+  const reqUser = req.body as User;
+  delete reqUser.id;
   // SQLクエリ実行
   const sqlQuery = {
     text: `
@@ -97,58 +100,62 @@ app.post("/", async (req, res) => {
         ($1, $2, $3)
       RETURNING id
       `,
-    values: [user.name, user.email, user.pass],
+    values: [reqUser.name, reqUser.email, reqUser.pass],
   };
-  const client = await pgConnect();
-  const result = await client.query<{ id: number }>(sqlQuery);
+  const result = await pgClient.query<{ id: number }>(sqlQuery);
 
   const id = result.rows[0].id;
   console.log(id);
 
-  // sendは文字列しか送れないため
-  res.status(200).json(id);
+  res.status(201).json(id);
 });
 
-// // put作成
-// app.put("/:id", async (req, res) => {
-//   // id取得
-//   const id = parseInt(req.params.id);
-//   const date = req.body;
+// put作成
+app.put("/:id", async (req, res) => {
+  // id取得
+  const id = parseInt(req.params.id);
+  const reqUser = req.body as User;
+  delete reqUser.id;
 
-//   // SQLクエリ実行
-//   const sqlQuery = {
-//     text: "UPDATE users SET ($1) WHERE id=($2)",
-//     values: [date, id],
-//   };
-//   const client = await pgConnect();
-//   const result = await client.query<User>(sqlQuery);
-//   // User型に格納（created_at、updated_atが残るエラー）
-//   const user = result.rows[0];
+  // SQLクエリ実行
+  const sqlQuery = {
+    text: `
+    UPDATE
+      users
+    SET
+      name = $1,
+      email = $2,
+      pass = $3
+    WHERE
+      id = $4;
+      `,
+    values: [reqUser.name, reqUser.email, reqUser.pass, id],
+  };
+  await pgClient.query<User>(sqlQuery);
+  // User型に格納（手動で格納、ホントはSELECTで返却値をもらう方が正しい）
+  const user = reqUser;
+  user.id = id;
+  console.log(user);
 
-//   console.log(user);
+  res.status(200).json(user);
+});
 
-//   res.status(200).json(user);
-// });
+// delete作成
+app.delete("/:id", async (req, res) => {
+  // id取得
+  const id = parseInt(req.params.id);
 
-// // delete作成
-// app.delete("/:id", async (req, res) => {
-//   // id取得
-//   const id = parseInt(req.params.id);
+  // SQLクエリ実行
+  const sqlQuery = {
+    text: "DELETE FROM users where id=$1",
+    values: [id],
+  };
+  await pgClient.query<User>(sqlQuery);
 
-//   // SQLクエリ実行
-//   const sqlQuery = {
-//     text: "DELETE FROM user where id=($1)",
-//     values: [id],
-//   };
-//   const client = await pgConnect();
-//   const result = await client.query<User>(sqlQuery);
-//   // User型に格納（created_at、updated_atが残るエラーの）
-//   const user = result.rows[0];
+  console.log(id);
 
-//   console.log(user);
-
-//   res.status(200).json(user);
-// });
+  res.status(204).json(id);
+});
 
 // Webサーバ起動
 app.listen(port);
