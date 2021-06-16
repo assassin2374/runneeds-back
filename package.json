@@ -8,7 +8,8 @@
     "build": "tsc",
     "start": "node dist/src/main.js",
     "dev": "nodemon src/main.ts",
-    "exec": "ts-node src/main.ts"
+    "exec": "ts-node src/main.ts",
+    "debug": "tsc -p . --sourceMap --outDir dist"
   },
   "keywords": [],
   "author": "",
