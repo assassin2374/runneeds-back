@@ -1,5 +1,6 @@
 import express from "express";
 import { Client } from "pg";
+import { User } from "./model/User";
 
 // Webサーバーのインスタンス化
 const app = express();
@@ -31,13 +32,6 @@ const pgConnect = (async () => {
 
 // eslint-disable-next-line @typescript-eslint/no-floating-promises
 // pgConnect();
-
-type User = {
-  id?: number;
-  name: string;
-  email: string;
-  pass: string;
-};
 
 // getAll作成
 app.get("/", async (req, res) => {
@@ -120,14 +114,14 @@ app.put("/:id", async (req, res) => {
   // SQLクエリ実行
   const sqlQuery = {
     text: `
-    UPDATE
-      users
-    SET
-      name = $1,
-      email = $2,
-      pass = $3
-    WHERE
-      id = $4;
+      UPDATE
+        users
+      SET
+        name = $1,
+        email = $2,
+        pass = $3
+      WHERE
+        id = $4;
       `,
     values: [reqUser.name, reqUser.email, reqUser.pass, id],
   };
