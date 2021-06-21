@@ -1,20 +1,18 @@
-// getAll作成
-app.get("/", async (req, res) => {
-  // SQLクエリ実行
-  const sqlQuery = {
-    text: "SELECT * FROM users",
-  };
-  const result = await pgClient.query<User>(sqlQuery);
-  // User型に格納（created_at、updated_atが残るエラー）
-  const users = result.rows.map((user) => {
-    return {
-      id: user.id,
-      name: user.name,
-      email: user.email,
-      pass: user.pass,
-    } as User;
-  });
-  console.log(users);
+import express from "express";
+import { Client } from "pg";
+import { User } from "../model/User";
 
-  res.status(200).json(users);
-});
+// getAll作成
+export const UserRepository:QueryResult<User[]> (pgConnect:Client) => {
+  // SQLクエリ実行
+    const query = {
+      text: `
+        SELECT 
+          * 
+        FROM
+          users
+      `,
+    };
+
+    return pgConnect.query<User>(query);
+};

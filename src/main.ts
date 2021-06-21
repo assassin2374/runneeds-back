@@ -35,6 +35,8 @@ const pgConnect = (async () => {
 
 // getAll作成
 app.get("/", async (req, res) => {
+  // リポジトリにpgConnectを渡す
+  // const result = UserRepository(pgConnect);
   // SQLクエリ実行
   const sqlQuery = {
     text: "SELECT * FROM users",
