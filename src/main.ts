@@ -1,6 +1,7 @@
 import express from "express";
 import { Client } from "pg";
 import { User } from "./model/User";
+import { UserRepository } from "./repository/UserRepository";
 
 // Webサーバーのインスタンス化
 const app = express();
@@ -33,10 +34,12 @@ const pgConnect = (async () => {
 // eslint-disable-next-line @typescript-eslint/no-floating-promises
 // pgConnect();
 
+const repository = new UserRepository();
+
 // getAll作成
 app.get("/", async (req, res) => {
   // リポジトリにpgConnectを渡す
-  // const result = UserRepository(pgConnect);
+  const results = await repository.getAll();
   // SQLクエリ実行
   const sqlQuery = {
     text: "SELECT * FROM users",

@@ -3,8 +3,10 @@ import { Client } from "pg";
 import { User } from "../model/User";
 
 // getAll作成
-export const UserRepository:QueryResult<User[]> (pgConnect:Client) => {
-  // SQLクエリ実行
+export class UserRepository {
+  // getAll作成
+  getAll(): Promise<User> {
+    // SQLクエリ実行
     const query = {
       text: `
         SELECT 
@@ -15,4 +17,5 @@ export const UserRepository:QueryResult<User[]> (pgConnect:Client) => {
     };
 
     return pgConnect.query<User>(query);
-};
+  }
+}
