@@ -14,48 +14,32 @@ app.use(express.json());
 
 // port番号を指定
 const port = process.env.PORT || 3000;
-let pgClient: Client;
 
 // Connectionを定義する
-const pgConnect = (async () => {
-  // データベース設定
-  const client = new Client({
-    host: "localhost",
-    database: "runneeds",
-    user: "root",
-    password: "root",
-    port: 5432,
-  });
-  // データベース接続
-  await client.connect();
-  pgClient = client;
-})();
+// データベース設定
+const client = new Client({
+  host: "localhost",
+  database: "runneeds",
+  user: "root",
+  password: "root",
+  port: 5432,
+});
+// データベース接続
+client
+  .connect()
+  .then(() => console.log("postgres connect success!"))
+  .catch((err) => console.log(err));
 
 // eslint-disable-next-line @typescript-eslint/no-floating-promises
 // pgConnect();
 
-const repository = new UserRepository();
+const repository = new UserRepository(client);
 
 // getAll作成
 app.get("/", async (req, res) => {
   // リポジトリにpgConnectを渡す
-  const results = await repository.getAll();
-  // SQLクエリ実行
-  const sqlQuery = {
-    text: "SELECT * FROM users",
-  };
-  const result = await pgClient.query<User>(sqlQuery);
-  // User型に格納（created_at、updated_atが残るエラー）
-  const users = result.rows.map((user) => {
-    return {
-      id: user.id,
-      name: user.name,
-      email: user.email,
-      pass: user.pass,
-    } as User;
-  });
+  const users = await repository.getAll();
   console.log(users);
-
   res.status(200).json(users);
 });
 
@@ -63,26 +47,15 @@ app.get("/", async (req, res) => {
 app.get("/:id", async (req, res) => {
   // id取得
   const id = parseInt(req.params.id);
-  // SQLクエリ実行
-  const sqlQuery = {
-    text: "SELECT * FROM users WHERE id=$1",
-    values: [id],
-  };
-  const result = await pgClient.query<User>(sqlQuery);
-  if (result.rowCount === 0) {
-    res.status(404).send();
-    return;
-  }
+  const user = await repository.get(id);
+
+  // if (result.rowCount === 0) {
+  //   res.status(404).send();
+  //   return;
+  // }
   // User型に格納（created_at、updated_atが残るエラー）
-  const user = {
-    id: result.rows[0].id,
-    name: result.rows[0].name,
-    email: result.rows[0].email,
-    pass: result.rows[0].pass,
-  };
 
   console.log(user);
-
   res.status(200).json(user);
 });
 
@@ -101,7 +74,7 @@ app.post("/", async (req, res) => {
       `,
     values: [reqUser.name, reqUser.email, reqUser.pass],
   };
-  const result = await pgClient.query<{ id: number }>(sqlQuery);
+  const result = await client.query<{ id: number }>(sqlQuery);
 
   const id = result.rows[0].id;
   console.log(id);
@@ -130,7 +103,7 @@ app.put("/:id", async (req, res) => {
       `,
     values: [reqUser.name, reqUser.email, reqUser.pass, id],
   };
-  await pgClient.query<User>(sqlQuery);
+  await client.query<User>(sqlQuery);
   // User型に格納（手動で格納、ホントはSELECTで返却値をもらう方が正しい）
   const user = reqUser;
   user.id = id;
@@ -149,7 +122,7 @@ app.delete("/:id", async (req, res) => {
     text: "DELETE FROM users where id=$1",
     values: [id],
   };
-  await pgClient.query<User>(sqlQuery);
+  await client.query<User>(sqlQuery);
 
   console.log(id);
 
