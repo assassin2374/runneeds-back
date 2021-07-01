@@ -1,7 +1,8 @@
 import express from "express";
 import { Client } from "pg";
 import { User } from "./model/User";
-import { UserRepository } from "./repository/UserRepository";
+import { UserRepository } from "./repository/user/UserRepository";
+import { UserService } from "./service/user/UserService";
 
 // Webサーバーのインスタンス化
 const app = express();
@@ -34,11 +35,12 @@ client
 // pgConnect();
 
 const repository = new UserRepository(client);
+const service = new UserService(repository);
 
 // getAll作成
 app.get("/", async (req, res) => {
   // リポジトリにpgConnectを渡す
-  const users = await repository.getAll();
+  const users = await service.getAll();
   console.log(users);
   res.status(200).json(users);
 });
@@ -47,15 +49,13 @@ app.get("/", async (req, res) => {
 app.get("/:id", async (req, res) => {
   // id取得
   const id = parseInt(req.params.id);
-  const user = await repository.get(id);
-
-  // if (result.rowCount === 0) {
-  //   res.status(404).send();
-  //   return;
-  // }
-  // User型に格納（created_at、updated_atが残るエラー）
+  const user = await service.get(id);
 
   console.log(user);
+  if (user.id == 0) {
+    res.status(404).json("not found");
+    return;
+  }
   res.status(200).json(user);
 });
 
@@ -64,21 +64,9 @@ app.post("/", async (req, res) => {
   const reqUser = req.body as User;
   delete reqUser.id;
   // SQLクエリ実行
-  const sqlQuery = {
-    text: `
-      INSERT INTO 
-        users (name, email, pass) 
-      VALUES 
-        ($1, $2, $3)
-      RETURNING id
-      `,
-    values: [reqUser.name, reqUser.email, reqUser.pass],
-  };
-  const result = await client.query<{ id: number }>(sqlQuery);
+  const id = await service.create(reqUser);
 
-  const id = result.rows[0].id;
   console.log(id);
-
   res.status(201).json(id);
 });
 
@@ -90,25 +78,13 @@ app.put("/:id", async (req, res) => {
   delete reqUser.id;
 
   // SQLクエリ実行
-  const sqlQuery = {
-    text: `
-      UPDATE
-        users
-      SET
-        name = $1,
-        email = $2,
-        pass = $3
-      WHERE
-        id = $4;
-      `,
-    values: [reqUser.name, reqUser.email, reqUser.pass, id],
-  };
-  await client.query<User>(sqlQuery);
-  // User型に格納（手動で格納、ホントはSELECTで返却値をもらう方が正しい）
-  const user = reqUser;
-  user.id = id;
-  console.log(user);
+  const user = await service.update(id, reqUser);
 
+  console.log(user);
+  if (user.id == 0) {
+    res.status(404).json("id not found");
+    return;
+  }
   res.status(200).json(user);
 });
 
@@ -118,15 +94,13 @@ app.delete("/:id", async (req, res) => {
   const id = parseInt(req.params.id);
 
   // SQLクエリ実行
-  const sqlQuery = {
-    text: "DELETE FROM users where id=$1",
-    values: [id],
-  };
-  await client.query<User>(sqlQuery);
-
-  console.log(id);
-
-  res.status(204).json(id);
+  const lostId = await service.delete(id);
+  if (lostId == 0) {
+    res.status(404).json("id not found");
+    return;
+  }
+  console.log(lostId);
+  res.status(204).json();
 });
 
 // Webサーバ起動
