@@ -1,5 +1,4 @@
 import { Client } from "pg";
-import { isRegExp } from "util";
 import { User } from "../../model/User";
 import { IUserRepository } from "./IUserRepository";
 

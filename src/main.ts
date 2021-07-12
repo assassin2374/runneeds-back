@@ -38,7 +38,7 @@ const repository = new UserRepository(client);
 const service = new UserService(repository);
 
 // getAll作成
-app.get("/", async (req, res) => {
+app.get("/api/users", async (req, res) => {
   // リポジトリにpgConnectを渡す
   const users = await service.getAll();
   console.log(users);
@@ -46,7 +46,7 @@ app.get("/", async (req, res) => {
 });
 
 // get作成
-app.get("/:id", async (req, res) => {
+app.get("/api/users/:id", async (req, res) => {
   // id取得
   const id = parseInt(req.params.id);
   const user = await service.get(id);
@@ -60,7 +60,7 @@ app.get("/:id", async (req, res) => {
 });
 
 // post作成
-app.post("/", async (req, res) => {
+app.post("/api/users/", async (req, res) => {
   const reqUser = req.body as User;
   delete reqUser.id;
   // SQLクエリ実行
@@ -71,7 +71,7 @@ app.post("/", async (req, res) => {
 });
 
 // put作成
-app.put("/:id", async (req, res) => {
+app.put("/api/users/:id", async (req, res) => {
   // id取得
   const id = parseInt(req.params.id);
   const reqUser = req.body as User;
@@ -89,7 +89,7 @@ app.put("/:id", async (req, res) => {
 });
 
 // delete作成
-app.delete("/:id", async (req, res) => {
+app.delete("/api/users/:id", async (req, res) => {
   // id取得
   const id = parseInt(req.params.id);
 

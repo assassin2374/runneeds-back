@@ -4,7 +4,7 @@
   "description": "",
   "main": "index.js",
   "scripts": {
-    "test": "jest",
+    "test": "jest '--forceExit'",
     "build": "tsc",
     "start": "node dist/src/main.js",
     "dev": "nodemon src/main.ts",
@@ -27,6 +27,7 @@
     "@types/jest": "^26.0.23",
     "@types/node": "^15.6.1",
     "@types/pg": "^8.6.0",
+    "@types/supertest": "^2.0.11",
     "@typescript-eslint/eslint-plugin": "^4.25.0",
     "@typescript-eslint/parser": "^4.25.0",
     "eslint": "^7.27.0",
@@ -35,6 +36,7 @@
     "jest": "^27.0.6",
     "nodemon": "^2.0.7",
     "prettier": "^2.3.0",
+    "supertest": "^6.1.3",
     "ts-jest": "^27.0.3",
     "ts-node": "^10.0.0",
     "typescript": "^4.3.5"
