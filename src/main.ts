@@ -62,6 +62,10 @@ app.get("/api/users/:id", async (req, res) => {
 // post作成
 app.post("/api/users/", async (req, res) => {
   const reqUser = req.body as User;
+  if (!reqUser) {
+    res.status(400).json("中身がないです");
+    return;
+  }
   delete reqUser.id;
   // SQLクエリ実行
   const id = await service.create(reqUser);
