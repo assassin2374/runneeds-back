@@ -115,70 +115,43 @@ describe("userAPI getテスト", () => {
 });
 
 describe("userAPI getAllテスト", () => {
-  it("get、正常系(3件突っ込み、3件取得)", async () => {
+  it("getAll、正常系(複数件突っ込み、複数件取得)", async () => {
     //expressのアプリケーション実体化
     const app: Application = express();
     //ユーザーAPIの作成
     const userRepository = new UserRepository(client);
     const userService = new UserService(userRepository);
     //ユーザーAPIをエンドポイントに登録
-    app.get("/api/users/:id", async (req, res) => {
-      // id取得
-      const id = parseInt(req.params.id);
-      const user = await userService.get(id);
+    app.get("/api/users/", async (req, res) => {
+      const users = await userService.getAll();
 
-      console.log(user);
-      if (user.id == 0) {
-        res.status(404).json("not found");
-        return;
-      }
-      res.status(200).json(user);
+      console.log(users);
+      res.status(200).json(users);
     });
 
-    // Userデータを1件insertする
-    const createdUser = await createUserData(userRepository);
-    // idはnumber型で固定（null回避）
-    const id = createdUser.id as number;
-    const response = await request(app).get(`/api/users/${id}`);
+    // Userデータを複数件insertする（今回3件）
+    const testNum = 3;
+    const createdUserList = await createUserListData(testNum, userRepository);
+    const response = await request(app).get("/api/users");
 
     //ステータスのチェック
     expect(200).toBe(response.statusCode);
 
-    const user = response.body as User;
+    const userList = response.body as User[];
+    expect(testNum).toBe(userList.length);
+    console.log(createdUserList);
+    console.log(userList);
+
+    const userMap = createUserMap(userList);
     // 項目の検証
-    expect(createdUser.id).toBe(user.id);
-    expect(createdUser.name).toBe(user.name);
-    expect(createdUser.email).toBe(user.email);
-    expect(createdUser.pass).toBe(user.pass);
-  });
-
-  it("get、異常系(0件突っ込み、0件取得+エラーメッセージ)", async () => {
-    //expressのアプリケーション実体化
-    const app: Application = express();
-    //ユーザーAPIのを作成
-    const userRepository = new UserRepository(client);
-    const userService = new UserService(userRepository);
-    //ユーザーAPIをエンドポイントに登録
-    // get作成
-    app.get("/api/users/:id", async (req, res) => {
-      // id取得
-      const id = parseInt(req.params.id);
-      const user = await userService.get(id);
-
-      console.log(user);
-      if (user.id == 0) {
-        res.status(404).json("not found");
-        return;
-      }
-      res.status(200).json(user);
+    createdUserList.forEach((createdUser) => {
+      const id = createdUser.id as number;
+      const user = userMap.get(id) as User;
+      expect(createdUser.id).toBe(user.id);
+      expect(createdUser.name).toBe(user.name);
+      expect(createdUser.email).toBe(user.email);
+      expect(createdUser.pass).toBe(user.pass);
     });
-
-    // idは-1を使用する（存在しないid）
-    const id = -1;
-    const response = await request(app).get(`/api/users/${id}`);
-
-    //ステータスのチェック
-    expect(404).toBe(response.statusCode);
   });
 });
 
@@ -523,4 +496,45 @@ async function createUserData(repository: UserRepository): Promise<User> {
 
   // 作成したUserデータを返却する。
   return user;
+}
+
+/**
+ * テスト用のUserデータを複数作成する
+ * @returns 作成されたUserListデータ
+ */
+async function createUserListData(
+  num: number,
+  repository: UserRepository
+): Promise<User[]> {
+  const userlist: User[] = [];
+  // index分データ追加
+  for (let index = 0; index < num; index++) {
+    // サンプルのUserデータをInsertする。
+    userlist[index] = {
+      name: `name_${index}`,
+      email: `email_${index}`,
+      pass: `pass_${index}`,
+    };
+    //データベースに追加
+    const result = await repository.create(userlist[index]);
+    userlist[index].id = result;
+  }
+
+  // 作成したUserデータを返却する。
+  return userlist;
+}
+
+/**
+ * UserデータからidをキーとするMapを作成する
+ * @returns 作成されたUserMapデータ
+ */
+function createUserMap(users: User[]): Map<number, User> {
+  const result = new Map<number, User>();
+
+  users.forEach((user) => {
+    const userId = user.id as number;
+    result.set(userId, user);
+  });
+
+  return result;
 }

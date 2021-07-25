@@ -18,6 +18,7 @@ export class UserRepository implements IUserRepository {
           * 
         FROM
           users
+        ORDER BY id DESC
       `,
     };
     const result = await this.client.query<User>(query);
