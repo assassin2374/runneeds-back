@@ -1,5 +1,6 @@
 import { IUserRepository } from "../../repository/user/IUserRepository";
 import { User } from "../../model/User";
+import { Result } from "../../model/utils/Result";
 
 // サービス作成
 export class UserService {
@@ -9,10 +10,17 @@ export class UserService {
     this.repository = repository;
   }
 
-  async getAll(): Promise<User[]> {
+  async getAll(): Promise<Result<User[]>> {
+    // 返却用のResultオブジェクト作成
+    const result: Result<User[]> = {};
+    // 値取得
     const users = await this.repository.getAll();
     console.log(users);
-    return users;
+    // resultに結果を格納
+    result.value = users;
+    result.statusCode = 404;
+
+    return result;
   }
 
   async get(id: number): Promise<User> {
