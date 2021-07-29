@@ -18,21 +18,38 @@ export class UserService {
     console.log(users);
     // resultに結果を格納
     result.value = users;
-    result.statusCode = 404;
+    result.statusCode = 200;
 
     return result;
   }
 
-  async get(id: number): Promise<User> {
+  async get(id: number): Promise<Result<User>> {
+    // 返却用のResultオブジェクト作成
+    const result: Result<User> = {};
+    // 値取得
     const user = await this.repository.get(id);
     console.log(user);
-    return user;
+
+    // resultに結果を格納
+    result.value = user;
+    if (user == null) {
+      result.statusCode = 404;
+      return result;
+    }
+    result.statusCode = 200;
+    return result;
   }
 
-  async create(user: User): Promise<number> {
+  async create(user: User): Promise<Result<number>> {
+    // 返却用のResultオブジェクト作成
+    const result: Result<number> = {};
+    // 値取得
     const id = await this.repository.create(user);
     console.log(id);
-    return id;
+    // resultに結果を格納
+    result.value = id;
+    result.statusCode = 200;
+    return result;
   }
 
   async update(id: number, user: User): Promise<User> {

@@ -57,14 +57,16 @@ describe("userAPI getテスト", () => {
     app.get("/api/users/:id", async (req, res) => {
       // id取得
       const id = parseInt(req.params.id);
-      const user = await userService.get(id);
+      const result = await userService.get(id);
+      const statusCode = result.statusCode as number;
+      const user = result.value as User;
 
       console.log(user);
       if (user.id == 0) {
         res.status(404).json("not found");
         return;
       }
-      res.status(200).json(user);
+      res.status(statusCode).json(user);
     });
 
     // Userデータを1件insertする
@@ -95,14 +97,16 @@ describe("userAPI getテスト", () => {
     app.get("/api/users/:id", async (req, res) => {
       // id取得
       const id = parseInt(req.params.id);
-      const user = await userService.get(id);
+      const result = await userService.get(id);
+      const statusCode = result.statusCode as number;
+      const user = result.value as User;
 
       console.log(user);
       if (user.id == 0) {
         res.status(404).json("not found");
         return;
       }
-      res.status(200).json(user);
+      res.status(statusCode).json(user);
     });
 
     // idは-1を使用する（存在しないid）
@@ -122,11 +126,13 @@ describe("userAPI getAllテスト", () => {
     const userRepository = new UserRepository(client);
     const userService = new UserService(userRepository);
     //ユーザーAPIをエンドポイントに登録
-    app.get("/api/users/", async (req, res) => {
-      const users = await userService.getAll();
-
+    app.get("/api/users", async (req, res) => {
+      // リポジトリにpgConnectを渡す
+      const result = await userService.getAll();
+      const statusCode = result.statusCode as number;
+      const users = result.value as User[];
       console.log(users);
-      res.status(200).json(users);
+      res.status(statusCode).json(users);
     });
 
     // Userデータを複数件insertする（今回3件）
@@ -185,14 +191,16 @@ describe("userAPI postテスト", () => {
     app.get("/api/users/:id", async (req, res) => {
       // id取得
       const id = parseInt(req.params.id);
-      const user = await userService.get(id);
+      const result = await userService.get(id);
+      const statusCode = result.statusCode as number;
+      const user = result.value as User;
 
       console.log(user);
       if (user.id == 0) {
         res.status(404).json("not found");
         return;
       }
-      res.status(200).json(user);
+      res.status(statusCode).json(user);
     });
 
     const response = await request(app).post("/api/users/").send(testUser);
@@ -241,14 +249,16 @@ describe("userAPI postテスト", () => {
     app.get("/api/users/:id", async (req, res) => {
       // id取得
       const id = parseInt(req.params.id);
-      const user = await userService.get(id);
+      const result = await userService.get(id);
+      const statusCode = result.statusCode as number;
+      const user = result.value as User;
 
       console.log(user);
       if (user.id == 0) {
-        res.status(404).json("not found");
+        res.status(statusCode).json("not found");
         return;
       }
-      res.status(200).json(user);
+      res.status(statusCode).json(user);
     });
 
     const response = await request(app).post("/api/users/").send();
@@ -425,14 +435,16 @@ describe("userAPI deleteテスト", () => {
     app.get("/api/users/:id", async (req, res) => {
       // id取得
       const id = parseInt(req.params.id);
-      const user = await userService.get(id);
+      const result = await userService.get(id);
+      const statusCode = result.statusCode as number;
+      const user = result.value as User;
 
       console.log(user);
       if (user.id == 0) {
         res.status(404).json("not found");
         return;
       }
-      res.status(200).json(user);
+      res.status(statusCode).json(user);
     });
 
     // Userデータを1件insertする

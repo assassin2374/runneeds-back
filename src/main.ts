@@ -40,23 +40,27 @@ const service = new UserService(repository);
 // getAll作成
 app.get("/api/users", async (req, res) => {
   // リポジトリにpgConnectを渡す
-  const users = await service.getAll();
+  const result = await service.getAll();
+  const statusCode = result.statusCode as number;
+  const users = result.value as User[];
   console.log(users);
-  res.status(200).json(users);
+  res.status(statusCode).json(users);
 });
 
 // get作成
 app.get("/api/users/:id", async (req, res) => {
   // id取得
   const id = parseInt(req.params.id);
-  const user = await service.get(id);
+  const result = await service.get(id);
+  const statusCode = result.statusCode as number;
+  const user = result.value as User;
 
   console.log(user);
   if (user.id == 0) {
-    res.status(404).json("not found");
+    res.status(statusCode).json("not found");
     return;
   }
-  res.status(200).json(user);
+  res.status(statusCode).json(user);
 });
 
 // post作成
@@ -68,10 +72,12 @@ app.post("/api/users/", async (req, res) => {
   }
   delete reqUser.id;
   // SQLクエリ実行
-  const id = await service.create(reqUser);
+  const result = await service.create(reqUser);
+  const statusCode = result.statusCode as number;
+  const id = result.value as number;
 
   console.log(id);
-  res.status(201).json(id);
+  res.status(statusCode).json(id);
 });
 
 // put作成
