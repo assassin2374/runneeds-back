@@ -5,6 +5,7 @@ import { TestRepository } from "./common/TestRepository";
 import express, { Application } from "express";
 import { Client } from "pg";
 import request from "supertest";
+import { HttpStatusCode } from "../src/model/utils/HttpStatusCode";
 
 // データベース設定（後々別ファイルに移行したい）
 const client = new Client({
@@ -176,16 +177,18 @@ describe("userAPI postテスト", () => {
     //ユーザーAPIをエンドポイントに登録
     app.post("/api/users/", async (req, res) => {
       const reqUser = req.body as User;
-      if (!validUser(reqUser)) {
+      if (!reqUser) {
         res.status(400).json("中身がないです");
         return;
       }
       delete reqUser.id;
       // SQLクエリ実行
-      const id = await userService.create(reqUser);
+      const result = await userService.create(reqUser);
+      const statusCode = result.statusCode as number;
+      const id = result.value as number;
 
       console.log(id);
-      res.status(201).json(id);
+      res.status(statusCode).json(id);
     });
     // get作成
     app.get("/api/users/:id", async (req, res) => {

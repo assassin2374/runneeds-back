@@ -1,6 +1,7 @@
 import { IUserRepository } from "../../repository/user/IUserRepository";
 import { User } from "../../model/User";
 import { Result } from "../../model/utils/Result";
+import { HttpStatusCode } from "../../model/utils/HttpStatusCode";
 
 // サービス作成
 export class UserService {
@@ -18,7 +19,7 @@ export class UserService {
     console.log(users);
     // resultに結果を格納
     result.value = users;
-    result.statusCode = 200;
+    result.statusCode = HttpStatusCode.OK;
 
     return result;
   }
@@ -33,10 +34,10 @@ export class UserService {
     // resultに結果を格納
     result.value = user;
     if (user == null) {
-      result.statusCode = 404;
+      result.statusCode = HttpStatusCode.NotFound;
       return result;
     }
-    result.statusCode = 200;
+    result.statusCode = HttpStatusCode.OK;
     return result;
   }
 
@@ -48,7 +49,7 @@ export class UserService {
     console.log(id);
     // resultに結果を格納
     result.value = id;
-    result.statusCode = 200;
+    result.statusCode = HttpStatusCode.Created;
     return result;
   }
 

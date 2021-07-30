@@ -3,6 +3,7 @@ import { Client } from "pg";
 import { User } from "./model/User";
 import { UserRepository } from "./repository/user/UserRepository";
 import { UserService } from "./service/user/UserService";
+import { HttpStatusCode } from "./model/utils/HttpStatusCode";
 
 // Webサーバーのインスタンス化
 const app = express();
@@ -56,7 +57,7 @@ app.get("/api/users/:id", async (req, res) => {
   const user = result.value as User;
 
   console.log(user);
-  if (user.id == 0) {
+  if (statusCode == HttpStatusCode.NotFound) {
     res.status(statusCode).json("not found");
     return;
   }
