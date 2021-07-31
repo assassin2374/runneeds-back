@@ -68,7 +68,7 @@ app.get("/api/users/:id", async (req, res) => {
 app.post("/api/users/", async (req, res) => {
   const reqUser = req.body as User;
   if (!reqUser) {
-    res.status(400).json("中身がないです");
+    res.status(HttpStatusCode.BadRequest).json("中身がないです");
     return;
   }
   delete reqUser.id;
@@ -89,14 +89,16 @@ app.put("/api/users/:id", async (req, res) => {
   delete reqUser.id;
 
   // SQLクエリ実行
-  const user = await service.update(id, reqUser);
+  const result = await service.update(id, reqUser);
+  const statusCode = result.statusCode as number;
+  const user = result.value as User;
 
   console.log(user);
-  if (user.id == 0) {
-    res.status(404).json("id not found");
+  if (statusCode == HttpStatusCode.NotFound) {
+    res.status(statusCode).json("id not found");
     return;
   }
-  res.status(200).json(user);
+  res.status(statusCode).json(user);
 });
 
 // delete作成
@@ -105,13 +107,16 @@ app.delete("/api/users/:id", async (req, res) => {
   const id = parseInt(req.params.id);
 
   // SQLクエリ実行
-  const lostId = await service.delete(id);
-  if (lostId == 0) {
-    res.status(404).json("id not found");
+  const result = await service.delete(id);
+  const statusCode = result.statusCode as number;
+  const lostId = result.value as number;
+
+  console.log(lostId);
+  if (statusCode == HttpStatusCode.NotFound) {
+    res.status(statusCode).json("id not found");
     return;
   }
-  console.log(lostId);
-  res.status(204).json();
+  res.status(statusCode).json();
 });
 
 // Webサーバ起動

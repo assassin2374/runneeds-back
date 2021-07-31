@@ -53,22 +53,39 @@ export class UserService {
     return result;
   }
 
-  async update(id: number, user: User): Promise<User> {
+  async update(id: number, user: User): Promise<Result<User>> {
+    // 返却用のResultオブジェクト作成
+    const result: Result<User> = {};
+    // 値取得
     const fromUser = await this.repository.get(id);
     if (fromUser.id == 0) {
-      user.id = 0;
-      return user;
+      // resultに結果を格納
+      result.value = user;
+      result.statusCode = HttpStatusCode.NotFound;
+      return result;
     }
+    // 値取得
     const updateUser = await this.repository.update(id, user);
     console.log(updateUser);
-    return updateUser;
+    // resultに結果を格納
+    result.value = updateUser;
+    result.statusCode = HttpStatusCode.OK;
+    return result;
   }
 
-  async delete(id: number): Promise<number> {
+  async delete(id: number): Promise<Result<number>> {
+    // 返却用のResultオブジェクト作成
+    const result: Result<number> = {};
     const fromUser = await this.repository.get(id);
     if (fromUser.id == 0) {
-      return fromUser.id;
+      // resultに結果を格納
+      result.value = fromUser.id;
+      result.statusCode = HttpStatusCode.NotFound;
+      return result;
     }
-    return await this.repository.delete(id);
+    // resultに結果を格納
+    result.value = await this.repository.delete(id);
+    result.statusCode = HttpStatusCode.NoContent;
+    return result;
   }
 }

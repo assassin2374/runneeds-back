@@ -63,8 +63,8 @@ describe("userAPI getテスト", () => {
       const user = result.value as User;
 
       console.log(user);
-      if (user.id == 0) {
-        res.status(404).json("not found");
+      if (statusCode == HttpStatusCode.NotFound) {
+        res.status(statusCode).json("not found");
         return;
       }
       res.status(statusCode).json(user);
@@ -77,7 +77,7 @@ describe("userAPI getテスト", () => {
     const response = await request(app).get(`/api/users/${id}`);
 
     //ステータスのチェック
-    expect(200).toBe(response.statusCode);
+    expect(HttpStatusCode.OK).toBe(response.statusCode);
 
     const user = response.body as User;
     // 項目の検証
@@ -103,8 +103,8 @@ describe("userAPI getテスト", () => {
       const user = result.value as User;
 
       console.log(user);
-      if (user.id == 0) {
-        res.status(404).json("not found");
+      if (statusCode == HttpStatusCode.NotFound) {
+        res.status(statusCode).json("not found");
         return;
       }
       res.status(statusCode).json(user);
@@ -115,7 +115,7 @@ describe("userAPI getテスト", () => {
     const response = await request(app).get(`/api/users/${id}`);
 
     //ステータスのチェック
-    expect(404).toBe(response.statusCode);
+    expect(HttpStatusCode.NotFound).toBe(response.statusCode);
   });
 });
 
@@ -142,7 +142,7 @@ describe("userAPI getAllテスト", () => {
     const response = await request(app).get("/api/users");
 
     //ステータスのチェック
-    expect(200).toBe(response.statusCode);
+    expect(HttpStatusCode.OK).toBe(response.statusCode);
 
     const userList = response.body as User[];
     expect(testNum).toBe(userList.length);
@@ -178,7 +178,7 @@ describe("userAPI postテスト", () => {
     app.post("/api/users/", async (req, res) => {
       const reqUser = req.body as User;
       if (!reqUser) {
-        res.status(400).json("中身がないです");
+        res.status(HttpStatusCode.BadRequest).json("中身がないです");
         return;
       }
       delete reqUser.id;
@@ -199,8 +199,8 @@ describe("userAPI postテスト", () => {
       const user = result.value as User;
 
       console.log(user);
-      if (user.id == 0) {
-        res.status(404).json("not found");
+      if (statusCode == HttpStatusCode.NotFound) {
+        res.status(statusCode).json("not found");
         return;
       }
       res.status(statusCode).json(user);
@@ -209,7 +209,7 @@ describe("userAPI postテスト", () => {
     const response = await request(app).post("/api/users/").send(testUser);
 
     //ステータスのチェック
-    expect(201).toBe(response.statusCode);
+    expect(HttpStatusCode.Created).toBe(response.statusCode);
 
     // idはnumber型で固定（null回避）
     const responseId = response.body as number;
@@ -237,16 +237,18 @@ describe("userAPI postテスト", () => {
     //ユーザーAPIをエンドポイントに登録
     app.post("/api/users/", async (req, res) => {
       const reqUser = req.body as User;
-      if (!validUser(reqUser)) {
-        res.status(400).json("中身がないです");
+      if (!reqUser) {
+        res.status(HttpStatusCode.BadRequest).json("中身がないです");
         return;
       }
       delete reqUser.id;
       // SQLクエリ実行
-      const id = await userService.create(reqUser);
+      const result = await userService.create(reqUser);
+      const statusCode = result.statusCode as number;
+      const id = result.value as number;
 
       console.log(id);
-      res.status(201).json(id);
+      res.status(statusCode).json(id);
     });
     // get作成
     app.get("/api/users/:id", async (req, res) => {
@@ -257,7 +259,7 @@ describe("userAPI postテスト", () => {
       const user = result.value as User;
 
       console.log(user);
-      if (user.id == 0) {
+      if (statusCode == HttpStatusCode.NotFound) {
         res.status(statusCode).json("not found");
         return;
       }
@@ -267,7 +269,7 @@ describe("userAPI postテスト", () => {
     const response = await request(app).post("/api/users/").send();
 
     //ステータスのチェック
-    expect(400).toBe(response.statusCode);
+    expect(HttpStatusCode.BadRequest).toBe(response.statusCode);
   });
 });
 
@@ -288,18 +290,19 @@ describe("userAPI putテスト", () => {
       // id取得
       const id = parseInt(req.params.id);
       const reqUser = req.body as User;
-      if (!validUser(reqUser)) {
-        res.status(400).json("中身がないです");
-        return;
-      }
       delete reqUser.id;
-      const user = await userService.update(id, reqUser);
+
+      // SQLクエリ実行
+      const result = await userService.update(id, reqUser);
+      const statusCode = result.statusCode as number;
+      const user = result.value as User;
+
       console.log(user);
-      if (user.id == 0) {
-        res.status(404).json("id not found");
+      if (statusCode == HttpStatusCode.NotFound) {
+        res.status(statusCode).json("id not found");
         return;
       }
-      res.status(200).json(user);
+      res.status(statusCode).json(user);
     });
 
     // Userデータを1件insertする
@@ -314,7 +317,7 @@ describe("userAPI putテスト", () => {
     const response = await request(app).put(`/api/users/${id}`).send(editUser);
 
     //ステータスのチェック
-    expect(200).toBe(response.statusCode);
+    expect(HttpStatusCode.OK).toBe(response.statusCode);
 
     const user = response.body as User;
     // 項目の検証
@@ -340,18 +343,19 @@ describe("userAPI putテスト", () => {
       // id取得
       const id = parseInt(req.params.id);
       const reqUser = req.body as User;
-      if (!validUser(reqUser)) {
-        res.status(400).json("中身がないです");
-        return;
-      }
       delete reqUser.id;
-      const user = await userService.update(id, reqUser);
+
+      // SQLクエリ実行
+      const result = await userService.update(id, reqUser);
+      const statusCode = result.statusCode as number;
+      const user = result.value as User;
+
       console.log(user);
-      if (user.id == 0) {
-        res.status(404).json("id not found");
+      if (statusCode == HttpStatusCode.NotFound) {
+        res.status(statusCode).json("id not found");
         return;
       }
-      res.status(200).json(user);
+      res.status(statusCode).json(user);
     });
 
     const editUser: User = {
@@ -364,7 +368,7 @@ describe("userAPI putテスト", () => {
     const response = await request(app).put(`/api/users/${id}`).send(editUser);
 
     //ステータスのチェック
-    expect(404).toBe(response.statusCode);
+    expect(HttpStatusCode.NotFound).toBe(response.statusCode);
   });
 
   it("put、異常系(1件突っ込み、空データ編集+エラーメッセージ)", async () => {
@@ -383,18 +387,19 @@ describe("userAPI putテスト", () => {
       // id取得
       const id = parseInt(req.params.id);
       const reqUser = req.body as User;
-      if (!validUser(reqUser)) {
-        res.status(400).json("中身がないです");
-        return;
-      }
       delete reqUser.id;
-      const user = await userService.update(id, reqUser);
+
+      // SQLクエリ実行
+      const result = await userService.update(id, reqUser);
+      const statusCode = result.statusCode as number;
+      const user = result.value as User;
+
       console.log(user);
-      if (user.id == 0) {
-        res.status(404).json("id not found");
+      if (statusCode == HttpStatusCode.NotFound) {
+        res.status(statusCode).json("id not found");
         return;
       }
-      res.status(200).json(user);
+      res.status(statusCode).json(user);
     });
 
     // Userデータを1件insertする
@@ -405,7 +410,7 @@ describe("userAPI putテスト", () => {
     const response = await request(app).put(`/api/users/${id}`).send();
 
     //ステータスのチェック
-    expect(400).toBe(response.statusCode);
+    expect(HttpStatusCode.BadRequest).toBe(response.statusCode);
   });
 });
 
@@ -425,14 +430,18 @@ describe("userAPI deleteテスト", () => {
     app.delete("/api/users/:id", async (req, res) => {
       // id取得
       const id = parseInt(req.params.id);
-      const lostId = await userService.delete(id);
+
+      // SQLクエリ実行
+      const result = await userService.delete(id);
+      const statusCode = result.statusCode as number;
+      const lostId = result.value as number;
 
       console.log(lostId);
-      if (lostId == 0) {
-        res.status(404).json("not found");
+      if (statusCode == HttpStatusCode.NotFound) {
+        res.status(statusCode).json("id not found");
         return;
       }
-      res.status(204).json();
+      res.status(statusCode).json();
     });
     // get作成
     app.get("/api/users/:id", async (req, res) => {
@@ -443,8 +452,8 @@ describe("userAPI deleteテスト", () => {
       const user = result.value as User;
 
       console.log(user);
-      if (user.id == 0) {
-        res.status(404).json("not found");
+      if (statusCode == HttpStatusCode.NotFound) {
+        res.status(statusCode).json("not found");
         return;
       }
       res.status(statusCode).json(user);
@@ -457,11 +466,11 @@ describe("userAPI deleteテスト", () => {
     const response = await request(app).delete(`/api/users/${id}`);
 
     //ステータスのチェック
-    expect(204).toBe(response.statusCode);
+    expect(HttpStatusCode.NoContent).toBe(response.statusCode);
 
     const getResponse = await request(app).get(`/api/users/${id}`);
     // 削除されたデータのステータスのチェック
-    expect(404).toBe(getResponse.statusCode);
+    expect(HttpStatusCode.NotFound).toBe(getResponse.statusCode);
   });
 
   it("delete、異常系(0件突っ込み、0件削除+エラーメッセージ)", async () => {
@@ -479,14 +488,18 @@ describe("userAPI deleteテスト", () => {
     app.delete("/api/users/:id", async (req, res) => {
       // id取得
       const id = parseInt(req.params.id);
-      const lostId = await userService.delete(id);
+
+      // SQLクエリ実行
+      const result = await userService.delete(id);
+      const statusCode = result.statusCode as number;
+      const lostId = result.value as number;
 
       console.log(lostId);
-      if (lostId == 0) {
-        res.status(404).json("not found");
+      if (statusCode == HttpStatusCode.NotFound) {
+        res.status(statusCode).json("id not found");
         return;
       }
-      res.status(204).json();
+      res.status(statusCode).json();
     });
 
     // idはnumber型で固定（null回避）
@@ -494,7 +507,7 @@ describe("userAPI deleteテスト", () => {
     const response = await request(app).delete(`/api/users/${id}`);
 
     //ステータスのチェック
-    expect(404).toBe(response.statusCode);
+    expect(HttpStatusCode.NotFound).toBe(response.statusCode);
   });
 });
 
