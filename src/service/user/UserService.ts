@@ -1,5 +1,5 @@
 import { IUserRepository } from "../../repository/user/IUserRepository";
-import { User } from "../../model/User";
+import { User, validUser } from "../../model/User";
 import { Result } from "../../model/utils/Result";
 import { HttpStatusCode } from "../../model/utils/HttpStatusCode";
 
@@ -33,7 +33,7 @@ export class UserService {
 
     // resultに結果を格納
     result.value = user;
-    if (user == null) {
+    if (validUser(user) == false) {
       result.statusCode = HttpStatusCode.NotFound;
       return result;
     }
@@ -58,9 +58,9 @@ export class UserService {
     const result: Result<User> = {};
     // 値取得
     const fromUser = await this.repository.get(id);
-    if (fromUser.id == 0) {
+    if (validUser(fromUser) == false) {
       // resultに結果を格納
-      result.value = user;
+      result.value = fromUser;
       result.statusCode = HttpStatusCode.NotFound;
       return result;
     }

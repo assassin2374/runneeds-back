@@ -177,7 +177,7 @@ describe("userAPI postテスト", () => {
     //ユーザーAPIをエンドポイントに登録
     app.post("/api/users/", async (req, res) => {
       const reqUser = req.body as User;
-      if (!reqUser) {
+      if (validUser(reqUser) == false) {
         res.status(HttpStatusCode.BadRequest).json("中身がないです");
         return;
       }
@@ -237,7 +237,7 @@ describe("userAPI postテスト", () => {
     //ユーザーAPIをエンドポイントに登録
     app.post("/api/users/", async (req, res) => {
       const reqUser = req.body as User;
-      if (!reqUser) {
+      if (validUser(reqUser) == false) {
         res.status(HttpStatusCode.BadRequest).json("中身がないです");
         return;
       }
@@ -290,6 +290,10 @@ describe("userAPI putテスト", () => {
       // id取得
       const id = parseInt(req.params.id);
       const reqUser = req.body as User;
+      if (validUser(reqUser) == false) {
+        res.status(HttpStatusCode.BadRequest).json("中身がないです");
+        return;
+      }
       delete reqUser.id;
 
       // SQLクエリ実行
@@ -343,6 +347,10 @@ describe("userAPI putテスト", () => {
       // id取得
       const id = parseInt(req.params.id);
       const reqUser = req.body as User;
+      if (validUser(reqUser) == false) {
+        res.status(HttpStatusCode.BadRequest).json("中身がないです");
+        return;
+      }
       delete reqUser.id;
 
       // SQLクエリ実行
@@ -387,6 +395,10 @@ describe("userAPI putテスト", () => {
       // id取得
       const id = parseInt(req.params.id);
       const reqUser = req.body as User;
+      if (validUser(reqUser) == false) {
+        res.status(HttpStatusCode.BadRequest).json("中身がないです");
+        return;
+      }
       delete reqUser.id;
 
       // SQLクエリ実行

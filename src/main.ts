@@ -1,6 +1,6 @@
 import express from "express";
 import { Client } from "pg";
-import { User } from "./model/User";
+import { User, validUser } from "./model/User";
 import { UserRepository } from "./repository/user/UserRepository";
 import { UserService } from "./service/user/UserService";
 import { HttpStatusCode } from "./model/utils/HttpStatusCode";
@@ -67,7 +67,7 @@ app.get("/api/users/:id", async (req, res) => {
 // post作成
 app.post("/api/users/", async (req, res) => {
   const reqUser = req.body as User;
-  if (!reqUser) {
+  if (validUser(reqUser) == false) {
     res.status(HttpStatusCode.BadRequest).json("中身がないです");
     return;
   }
@@ -86,6 +86,10 @@ app.put("/api/users/:id", async (req, res) => {
   // id取得
   const id = parseInt(req.params.id);
   const reqUser = req.body as User;
+  if (validUser(reqUser) == false) {
+    res.status(HttpStatusCode.BadRequest).json("中身がないです");
+    return;
+  }
   delete reqUser.id;
 
   // SQLクエリ実行
