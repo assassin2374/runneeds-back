@@ -4,9 +4,9 @@ import { User } from "../../src/model/User";
 // サービス作成
 export class UserController {
   // IUserRepositoryを引数でもらう
-  private repository: IUserService;
-  constructor(repository: IUserService) {
-    this.repository = repository;
+  private service: IUserService;
+  constructor(service: IUserService) {
+    this.service = service;
   }
 
   // getAll作成

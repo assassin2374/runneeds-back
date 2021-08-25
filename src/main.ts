@@ -3,7 +3,7 @@ import { Client } from "pg";
 import { User, validUser } from "./model/User";
 import { UserRepository } from "./repository/user/UserRepository";
 import { UserService } from "./service/user/UserService";
-import { UserController } from "./controller/UserController";
+//import { UserController } from "./controller/UserController";
 import { HttpStatusCode } from "./model/utils/HttpStatusCode";
 
 // Webサーバーのインスタンス化
@@ -38,9 +38,9 @@ client
 
 const repository = new UserRepository(client);
 const service = new UserService(repository);
-const controller = new UserController(service);
+//const controller = new UserController(service);
 
-app.use("/api/", controller);
+//app.use("/api/", controller);
 
 // getAll作成
 app.get("/api/users", async (req, res) => {
