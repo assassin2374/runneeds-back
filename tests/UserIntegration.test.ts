@@ -1,6 +1,7 @@
 import { User, validUser } from "../src/model/User";
 import { UserRepository } from "../src/repository/user/UserRepository";
 import { UserService } from "../src/service/user/UserService";
+import { UserController } from "../src/controller/user/UserController";
 import { TestRepository } from "./common/TestRepository";
 import express, { Application } from "express";
 import { Client } from "pg";
@@ -54,21 +55,9 @@ describe("userAPI getテスト", () => {
     //ユーザーAPIの作成
     const userRepository = new UserRepository(client);
     const userService = new UserService(userRepository);
+    const userController = new UserController(userService);
     //ユーザーAPIをエンドポイントに登録
-    app.get("/api/users/:id", async (req, res) => {
-      // id取得
-      const id = parseInt(req.params.id);
-      const result = await userService.get(id);
-      const statusCode = result.statusCode as number;
-      const user = result.value as User;
-
-      console.log(user);
-      if (statusCode == HttpStatusCode.NotFound) {
-        res.status(statusCode).json("not found");
-        return;
-      }
-      res.status(statusCode).json(user);
-    });
+    app.use("/api/", userController.router);
 
     // Userデータを1件insertする
     const createdUser = await createUserData(userRepository);
@@ -93,22 +82,9 @@ describe("userAPI getテスト", () => {
     //ユーザーAPIのを作成
     const userRepository = new UserRepository(client);
     const userService = new UserService(userRepository);
+    const userController = new UserController(userService);
     //ユーザーAPIをエンドポイントに登録
-    // get作成
-    app.get("/api/users/:id", async (req, res) => {
-      // id取得
-      const id = parseInt(req.params.id);
-      const result = await userService.get(id);
-      const statusCode = result.statusCode as number;
-      const user = result.value as User;
-
-      console.log(user);
-      if (statusCode == HttpStatusCode.NotFound) {
-        res.status(statusCode).json("not found");
-        return;
-      }
-      res.status(statusCode).json(user);
-    });
+    app.use("/api/", userController.router);
 
     // idは-1を使用する（存在しないid）
     const id = -1;
@@ -126,15 +102,9 @@ describe("userAPI getAllテスト", () => {
     //ユーザーAPIの作成
     const userRepository = new UserRepository(client);
     const userService = new UserService(userRepository);
+    const userController = new UserController(userService);
     //ユーザーAPIをエンドポイントに登録
-    app.get("/api/users", async (req, res) => {
-      // リポジトリにpgConnectを渡す
-      const result = await userService.getAll();
-      const statusCode = result.statusCode as number;
-      const users = result.value as User[];
-      console.log(users);
-      res.status(statusCode).json(users);
-    });
+    app.use("/api/", userController.router);
 
     // Userデータを複数件insertする（今回3件）
     const testNum = 3;
@@ -174,37 +144,9 @@ describe("userAPI postテスト", () => {
     //ユーザーAPIの作成
     const userRepository = new UserRepository(client);
     const userService = new UserService(userRepository);
+    const userController = new UserController(userService);
     //ユーザーAPIをエンドポイントに登録
-    app.post("/api/users/", async (req, res) => {
-      const reqUser = req.body as User;
-      if (validUser(reqUser) == false) {
-        res.status(HttpStatusCode.BadRequest).json("中身がないです");
-        return;
-      }
-      delete reqUser.id;
-      // SQLクエリ実行
-      const result = await userService.create(reqUser);
-      const statusCode = result.statusCode as number;
-      const id = result.value as number;
-
-      console.log(id);
-      res.status(statusCode).json(id);
-    });
-    // get作成
-    app.get("/api/users/:id", async (req, res) => {
-      // id取得
-      const id = parseInt(req.params.id);
-      const result = await userService.get(id);
-      const statusCode = result.statusCode as number;
-      const user = result.value as User;
-
-      console.log(user);
-      if (statusCode == HttpStatusCode.NotFound) {
-        res.status(statusCode).json("not found");
-        return;
-      }
-      res.status(statusCode).json(user);
-    });
+    app.use("/api/", userController.router);
 
     const response = await request(app).post("/api/users/").send(testUser);
 
@@ -234,37 +176,9 @@ describe("userAPI postテスト", () => {
     //ユーザーAPIの作成
     const userRepository = new UserRepository(client);
     const userService = new UserService(userRepository);
+    const userController = new UserController(userService);
     //ユーザーAPIをエンドポイントに登録
-    app.post("/api/users/", async (req, res) => {
-      const reqUser = req.body as User;
-      if (validUser(reqUser) == false) {
-        res.status(HttpStatusCode.BadRequest).json("中身がないです");
-        return;
-      }
-      delete reqUser.id;
-      // SQLクエリ実行
-      const result = await userService.create(reqUser);
-      const statusCode = result.statusCode as number;
-      const id = result.value as number;
-
-      console.log(id);
-      res.status(statusCode).json(id);
-    });
-    // get作成
-    app.get("/api/users/:id", async (req, res) => {
-      // id取得
-      const id = parseInt(req.params.id);
-      const result = await userService.get(id);
-      const statusCode = result.statusCode as number;
-      const user = result.value as User;
-
-      console.log(user);
-      if (statusCode == HttpStatusCode.NotFound) {
-        res.status(statusCode).json("not found");
-        return;
-      }
-      res.status(statusCode).json(user);
-    });
+    app.use("/api/", userController.router);
 
     const response = await request(app).post("/api/users/").send();
 
@@ -285,29 +199,9 @@ describe("userAPI putテスト", () => {
     //ユーザーAPIの作成
     const userRepository = new UserRepository(client);
     const userService = new UserService(userRepository);
+    const userController = new UserController(userService);
     //ユーザーAPIをエンドポイントに登録
-    app.put("/api/users/:id", async (req, res) => {
-      // id取得
-      const id = parseInt(req.params.id);
-      const reqUser = req.body as User;
-      if (validUser(reqUser) == false) {
-        res.status(HttpStatusCode.BadRequest).json("中身がないです");
-        return;
-      }
-      delete reqUser.id;
-
-      // SQLクエリ実行
-      const result = await userService.update(id, reqUser);
-      const statusCode = result.statusCode as number;
-      const user = result.value as User;
-
-      console.log(user);
-      if (statusCode == HttpStatusCode.NotFound) {
-        res.status(statusCode).json("id not found");
-        return;
-      }
-      res.status(statusCode).json(user);
-    });
+    app.use("/api/", userController.router);
 
     // Userデータを1件insertする
     const createdUser = await createUserData(userRepository);
@@ -342,29 +236,9 @@ describe("userAPI putテスト", () => {
     //ユーザーAPIの作成
     const userRepository = new UserRepository(client);
     const userService = new UserService(userRepository);
+    const userController = new UserController(userService);
     //ユーザーAPIをエンドポイントに登録
-    app.put("/api/users/:id", async (req, res) => {
-      // id取得
-      const id = parseInt(req.params.id);
-      const reqUser = req.body as User;
-      if (validUser(reqUser) == false) {
-        res.status(HttpStatusCode.BadRequest).json("中身がないです");
-        return;
-      }
-      delete reqUser.id;
-
-      // SQLクエリ実行
-      const result = await userService.update(id, reqUser);
-      const statusCode = result.statusCode as number;
-      const user = result.value as User;
-
-      console.log(user);
-      if (statusCode == HttpStatusCode.NotFound) {
-        res.status(statusCode).json("id not found");
-        return;
-      }
-      res.status(statusCode).json(user);
-    });
+    app.use("/api/", userController.router);
 
     const editUser: User = {
       name: "edit_name",
@@ -390,29 +264,9 @@ describe("userAPI putテスト", () => {
     //ユーザーAPIの作成
     const userRepository = new UserRepository(client);
     const userService = new UserService(userRepository);
+    const userController = new UserController(userService);
     //ユーザーAPIをエンドポイントに登録
-    app.put("/api/users/:id", async (req, res) => {
-      // id取得
-      const id = parseInt(req.params.id);
-      const reqUser = req.body as User;
-      if (validUser(reqUser) == false) {
-        res.status(HttpStatusCode.BadRequest).json("中身がないです");
-        return;
-      }
-      delete reqUser.id;
-
-      // SQLクエリ実行
-      const result = await userService.update(id, reqUser);
-      const statusCode = result.statusCode as number;
-      const user = result.value as User;
-
-      console.log(user);
-      if (statusCode == HttpStatusCode.NotFound) {
-        res.status(statusCode).json("id not found");
-        return;
-      }
-      res.status(statusCode).json(user);
-    });
+    app.use("/api/", userController.router);
 
     // Userデータを1件insertする
     const createdUser = await createUserData(userRepository);
@@ -438,38 +292,9 @@ describe("userAPI deleteテスト", () => {
     //ユーザーAPIの作成
     const userRepository = new UserRepository(client);
     const userService = new UserService(userRepository);
+    const userController = new UserController(userService);
     //ユーザーAPIをエンドポイントに登録
-    app.delete("/api/users/:id", async (req, res) => {
-      // id取得
-      const id = parseInt(req.params.id);
-
-      // SQLクエリ実行
-      const result = await userService.delete(id);
-      const statusCode = result.statusCode as number;
-      const lostId = result.value as number;
-
-      console.log(lostId);
-      if (statusCode == HttpStatusCode.NotFound) {
-        res.status(statusCode).json("id not found");
-        return;
-      }
-      res.status(statusCode).json();
-    });
-    // get作成
-    app.get("/api/users/:id", async (req, res) => {
-      // id取得
-      const id = parseInt(req.params.id);
-      const result = await userService.get(id);
-      const statusCode = result.statusCode as number;
-      const user = result.value as User;
-
-      console.log(user);
-      if (statusCode == HttpStatusCode.NotFound) {
-        res.status(statusCode).json("not found");
-        return;
-      }
-      res.status(statusCode).json(user);
-    });
+    app.use("/api/", userController.router);
 
     // Userデータを1件insertする
     const createdUser = await createUserData(userRepository);
@@ -496,23 +321,9 @@ describe("userAPI deleteテスト", () => {
     //ユーザーAPIの作成
     const userRepository = new UserRepository(client);
     const userService = new UserService(userRepository);
+    const userController = new UserController(userService);
     //ユーザーAPIをエンドポイントに登録
-    app.delete("/api/users/:id", async (req, res) => {
-      // id取得
-      const id = parseInt(req.params.id);
-
-      // SQLクエリ実行
-      const result = await userService.delete(id);
-      const statusCode = result.statusCode as number;
-      const lostId = result.value as number;
-
-      console.log(lostId);
-      if (statusCode == HttpStatusCode.NotFound) {
-        res.status(statusCode).json("id not found");
-        return;
-      }
-      res.status(statusCode).json();
-    });
+    app.use("/api/", userController.router);
 
     // idはnumber型で固定（null回避）
     const id = 0;
