@@ -32,11 +32,11 @@ export class UserService {
     console.log(user);
 
     // resultに結果を格納
-    result.value = user;
     if (validUser(user) == false) {
       result.statusCode = HttpStatusCode.NotFound;
       return result;
     }
+    result.value = user;
     result.statusCode = HttpStatusCode.OK;
     return result;
   }
@@ -60,7 +60,6 @@ export class UserService {
     const fromUser = await this.repository.get(id);
     if (validUser(fromUser) == false) {
       // resultに結果を格納
-      result.value = fromUser;
       result.statusCode = HttpStatusCode.NotFound;
       return result;
     }
@@ -79,7 +78,6 @@ export class UserService {
     const fromUser = await this.repository.get(id);
     if (fromUser.id == 0) {
       // resultに結果を格納
-      result.value = fromUser.id;
       result.statusCode = HttpStatusCode.NotFound;
       return result;
     }
