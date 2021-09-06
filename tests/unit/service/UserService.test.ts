@@ -41,34 +41,6 @@ const creatMockUsers = (id: number) => {
   return mockUser;
 };
 
-const mockErrRepository: IUserRepository = {
-  getAll(): Promise<User[]> {
-    return new Promise<User[]>(function (resolve, reject) {
-      reject(mockUsers);
-    });
-  },
-  get(id: number): Promise<User> {
-    return new Promise<User>(function (resolve) {
-      resolve(mockUser);
-    });
-  },
-  create(user: User): Promise<number> {
-    return new Promise<number>(function (resolve, reject) {
-      resolve(0);
-    });
-  },
-  update(id: number, user: User): Promise<User> {
-    return new Promise<User>(function (resolve, reject) {
-      resolve(mockUser);
-    });
-  },
-  delete(id: number): Promise<number> {
-    return new Promise<number>(function (resolve, reject) {
-      resolve(0);
-    });
-  },
-};
-
 const mockRepository: IUserRepository = {
   getAll(): Promise<User[]> {
     return new Promise<User[]>(function () {
@@ -141,5 +113,32 @@ describe("userAPI getテスト", () => {
     //ステータスのチェック
     expect(HttpStatusCode.NotFound).toBe(result.statusCode);
     expect(result.value).toBeUndefined();
+  });
+});
+
+describe("userAPI getAllテスト", () => {
+  it("getAll、正常系(3件突っ込み、3件取得)", async () => {
+    const getfunc = (id: number): Promise<User[]> => {
+      return new Promise<User[]>(function (resolve) {
+        resolve(creatMockUsers(3));
+      });
+    };
+    mockRepository.getAll = getfunc;
+    // idはnumber型で固定（null回避）
+    const id = 0;
+    const userService = new UserService(mockRepository);
+
+    // user一件取得
+    const result = await userService.getAll;
+
+    //ステータスのチェック
+    expect(HttpStatusCode.OK).toBe(result.statusCode);
+
+    const resultUser = result.value as User;
+    // 項目の検証
+    expect(mockUser.id).toBe(resultUser.id);
+    expect(mockUser.name).toBe(resultUser.name);
+    expect(mockUser.email).toBe(resultUser.email);
+    expect(mockUser.pass).toBe(resultUser.pass);
   });
 });
