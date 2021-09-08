@@ -11,7 +11,8 @@
     "exec": "ts-node src/main.ts",
     "debug": "tsc -p . --sourceMap --outDir dist",
     "test_user_integ": "jest ./tests/UserIntegration.test.ts '--forceExit'",
-    "test_user_unit_service": "jest ./tests/unit/service/UserService.test.ts '--forceExit'"
+    "test_user_unit_service": "jest ./tests/unit/service/UserService.test.ts '--forceExit'",
+    "test_user_unit_repository": "jest ./tests/unit/repository/UserRepository.test.ts '--forceExit'"
   },
   "keywords": [],
   "author": "",
