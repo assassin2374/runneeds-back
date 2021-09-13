@@ -56,7 +56,7 @@ describe("userAPI getテスト", () => {
     expect(createdUser.email).toBe(user.email);
     expect(createdUser.pass).toBe(user.pass);
   });
-  it("get、異常系(0件突っ込み、0件取得)", async () => {
+  it("get、異常系(存在しないIDを検索、空のuser型取得)", async () => {
     const userRepository = new UserRepository(client);
     // Userデータを1件insertする
     await createUserData(userRepository);

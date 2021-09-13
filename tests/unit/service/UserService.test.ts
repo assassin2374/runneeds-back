@@ -116,6 +116,50 @@ describe("userAPI getAllテスト", () => {
   });
 });
 
+describe("userAPI postテスト", () => {
+  it("post、正常系(新しいユーザーデータ作成)", async () => {
+    const id = mockUser.id as number;
+    // test用のモック関数作成
+    const getfunc = (): Promise<number> => {
+      return new Promise<number>(function (resolve) {
+        resolve(id);
+      });
+    };
+    mockRepository.create = getfunc;
+    const userService = new UserService(mockRepository);
+
+    // create
+    const result = await userService.create(mockUser);
+    const resultId = result.value;
+
+    //ステータスのチェック
+    expect(HttpStatusCode.Created).toBe(result.statusCode);
+
+    expect(id).toBe(resultId);
+  });
+});
+
+describe("userAPI putテスト", () => {
+  it("put、正常系(1件突っ込み、1件編集)", async () => {
+    // test用のモック関数作成
+    const getfunc = (id: number, user: User): Promise<User> => {
+      return new Promise<User>(function (resolve) {
+        resolve(mockUser.id);
+      });
+    };
+    mockRepository.create = getfunc;
+    const userService = new UserService(mockRepository);
+
+    // create
+    const result = await userService.create(mockUser);
+
+    //ステータスのチェック
+    expect(HttpStatusCode.OK).toBe(result.statusCode);
+
+    expect(mockUser.id).toBe(result);
+  });
+});
+
 // 単一のUserデータ
 const mockUser: User = {
   id: 1,
