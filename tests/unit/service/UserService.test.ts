@@ -114,18 +114,32 @@ describe("userAPI getAllテスト", () => {
       expect(createdUser.pass).toBe(user.pass);
     });
   });
+  it("getAll、準正常系(0件取得、エラーなし)", async () => {});
 });
 
 describe("userAPI postテスト", () => {
   it("post、正常系(新しいユーザーデータ作成)", async () => {
     const id = mockUser.id as number;
     // test用のモック関数作成
-    const getfunc = (): Promise<number> => {
+    const postfunc = (): Promise<number> => {
       return new Promise<number>(function (resolve) {
         resolve(id);
       });
     };
-    mockRepository.create = getfunc;
+    mockRepository.create = postfunc;
+    const userService = new UserService(mockRepository);
+
+    // create
+    const result = await userService.create(mockUser);
+    const resultId = result.value;
+
+    //ステータスのチェック
+    expect(HttpStatusCode.Created).toBe(result.statusCode);
+
+    expect(id).toBe(resultId);
+  });
+  it("post 異常系(リポジトリが空の場合)", async () => {
+    const id = mockUser.id as number;
     const userService = new UserService(mockRepository);
 
     // create
@@ -141,22 +155,64 @@ describe("userAPI postテスト", () => {
 
 describe("userAPI putテスト", () => {
   it("put、正常系(1件突っ込み、1件編集)", async () => {
+    const id = mockUser.id as number;
     // test用のモック関数作成
-    const getfunc = (id: number, user: User): Promise<User> => {
+    const getfunc = (id: number): Promise<User> => {
       return new Promise<User>(function (resolve) {
-        resolve(mockUser.id);
+        resolve(mockUser);
       });
     };
-    mockRepository.create = getfunc;
+    const putfunc = (id: number, user: User): Promise<User> => {
+      return new Promise<User>(function (resolve) {
+        resolve(mockUser);
+      });
+    };
+    mockRepository.update = putfunc;
+    mockRepository.get = getfunc;
     const userService = new UserService(mockRepository);
 
     // create
-    const result = await userService.create(mockUser);
+    const result = await userService.update(id, mockUser);
 
     //ステータスのチェック
     expect(HttpStatusCode.OK).toBe(result.statusCode);
 
-    expect(mockUser.id).toBe(result);
+    const resultUser = result.value as User;
+    // 項目の検証
+    expect(mockUser.id).toBe(resultUser.id);
+    expect(mockUser.name).toBe(resultUser.name);
+    expect(mockUser.email).toBe(resultUser.email);
+    expect(mockUser.pass).toBe(resultUser.pass);
+  });
+});
+
+describe("userAPI deleteテスト", () => {
+  it("delete、正常系(1件削除)", async () => {
+    const id = mockUser.id as number;
+    // test用のモック関数作成
+    const getfunc = (id: number): Promise<User> => {
+      return new Promise<User>(function (resolve) {
+        resolve(mockUser);
+      });
+    };
+    const deletefunc = (id: number): Promise<number> => {
+      return new Promise<number>(function (resolve) {
+        resolve(id);
+      });
+    };
+    mockRepository.delete = deletefunc;
+    mockRepository.get = getfunc;
+    const userService = new UserService(mockRepository);
+
+    // create
+    const result = await userService.delete(id);
+
+    //ステータスのチェック
+    expect(HttpStatusCode.NoContent).toBe(result.statusCode);
+
+    const resultId = result.value as number;
+    // 項目の検証
+    expect(mockUser.id).toBe(resultId);
   });
 });
 

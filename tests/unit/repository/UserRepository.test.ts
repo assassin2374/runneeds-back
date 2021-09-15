@@ -68,6 +68,85 @@ describe("userAPI getテスト", () => {
   });
 });
 
+describe("userAPI getAllテスト", () => {
+  it("getAll、正常系(1件突っ込み、1件取得)", async () => {
+    //testデータ件数3
+    const testNum = 3;
+    const userRepository = new UserRepository(client);
+
+    // Userデータを3件insertする
+    const createdUsers = await createUserListData(testNum, userRepository);
+
+    // user3件取得
+    const userList = await userRepository.getAll();
+
+    // 項目の検証
+    expect(testNum).toBe(userList.length);
+
+    const userMap = createUserMap(userList);
+    createdUsers.forEach((createdUser) => {
+      const id = createdUser.id as number;
+      const user = userMap.get(id) as User;
+      expect(createdUser.id).toBe(user.id);
+      expect(createdUser.name).toBe(user.name);
+      expect(createdUser.email).toBe(user.email);
+      expect(createdUser.pass).toBe(user.pass);
+    });
+  });
+});
+
+describe("userAPI postテスト", () => {
+  it("post、正常系(新しいユーザーデータ作成)", async () => {
+    //ユーザーAPIの作成
+    const userRepository = new UserRepository(client);
+
+    // idはnumber型で固定（null回避）
+    const resultId = await userRepository.create(testUser);
+
+    // idでgetする
+    const user = await userRepository.get(resultId);
+
+    // 項目の検証
+    expect(resultId).toBe(user.id);
+    expect(testUser.name).toBe(user.name);
+    expect(testUser.email).toBe(user.email);
+    expect(testUser.pass).toBe(user.pass);
+  });
+});
+
+describe("userAPI putテスト", () => {
+  it("put、正常系(1件突っ込み、1件編集)", async () => {
+    const id = 1;
+    //ユーザーAPIの作成
+    const userRepository = new UserRepository(client);
+
+    // 書き換えたuser取得
+    const resultUser = await userRepository.update(id, testUser);
+
+    // 項目の検証
+    expect(id).toBe(resultUser.id);
+    expect(testUser.name).toBe(resultUser.name);
+    expect(testUser.email).toBe(resultUser.email);
+    expect(testUser.pass).toBe(resultUser.pass);
+  });
+});
+
+describe("userAPI deleteテスト", () => {
+  it("delete、正常系(1件突っ込み、1件削除)", async () => {
+    //ユーザーAPIの作成
+    const userRepository = new UserRepository(client);
+
+    // Userデータを1件insertする
+    const createdUser = await createUserData(userRepository);
+    // idはnumber型で固定（null回避）
+    const id = createdUser.id as number;
+    const resultId = await userRepository.delete(id);
+
+    // 削除されたデータのステータスのチェック
+    expect(id).toBe(resultId);
+  });
+});
+
 /**
  * テスト用のUserデータを作成する
  * @returns 作成されたUserデータ
