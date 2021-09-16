@@ -84,6 +84,7 @@ describe("userAPI getAllテスト", () => {
   it("getAll、正常系(3件突っ込み、3件取得)", async () => {
     // テスト用引数
     const testNum = 3;
+    // testNum分のデータ作成
     const MockUsers = creatMockUsers(testNum);
     // test用のモック関数作成
     const getfunc = (): Promise<User[]> => {
@@ -114,7 +115,26 @@ describe("userAPI getAllテスト", () => {
       expect(createdUser.pass).toBe(user.pass);
     });
   });
-  it("getAll、準正常系(0件取得、エラーなし)", async () => {});
+  it("getAll、準正常系(0件取得、エラーなし)", async () => {
+    // test用のモック関数作成
+    const getfunc = (): Promise<User[]> => {
+      return new Promise<User[]>(function (resolve) {
+        resolve([]);
+      });
+    };
+    mockRepository.getAll = getfunc;
+    const userService = new UserService(mockRepository);
+
+    // user一件取得
+    const result = await userService.getAll();
+
+    //ステータスのチェック
+    expect(HttpStatusCode.OK).toBe(result.statusCode);
+
+    const userList = result.value as User[];
+    // 項目の検証
+    expect(0).toBe(userList.length);
+  });
 });
 
 describe("userAPI postテスト", () => {
