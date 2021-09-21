@@ -158,19 +158,6 @@ describe("userAPI postテスト", () => {
 
     expect(id).toBe(resultId);
   });
-  it("post 異常系(リポジトリが空の場合)", async () => {
-    const id = mockUser.id as number;
-    const userService = new UserService(mockRepository);
-
-    // create
-    const result = await userService.create(mockUser);
-    const resultId = result.value;
-
-    //ステータスのチェック
-    expect(HttpStatusCode.Created).toBe(result.statusCode);
-
-    expect(id).toBe(resultId);
-  });
 });
 
 describe("userAPI putテスト", () => {
@@ -189,6 +176,30 @@ describe("userAPI putテスト", () => {
     };
     mockRepository.update = putfunc;
     mockRepository.get = getfunc;
+    const userService = new UserService(mockRepository);
+
+    // create
+    const result = await userService.update(id, mockUser);
+
+    //ステータスのチェック
+    expect(HttpStatusCode.OK).toBe(result.statusCode);
+
+    const resultUser = result.value as User;
+    // 項目の検証
+    expect(mockUser.id).toBe(resultUser.id);
+    expect(mockUser.name).toBe(resultUser.name);
+    expect(mockUser.email).toBe(resultUser.email);
+    expect(mockUser.pass).toBe(resultUser.pass);
+  });
+  it("put、異常系(指定したidがない場合)", async () => {
+    const id = mockUser.id as number;
+    // test用のモック関数作成
+    const putfunc = (id: number, user: User): Promise<User> => {
+      return new Promise<User>(function (resolve) {
+        resolve(mockUser);
+      });
+    };
+    mockRepository.update = putfunc;
     const userService = new UserService(mockRepository);
 
     // create
