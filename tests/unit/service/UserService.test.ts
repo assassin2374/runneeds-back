@@ -191,29 +191,28 @@ describe("userAPI putテスト", () => {
     expect(mockUser.email).toBe(resultUser.email);
     expect(mockUser.pass).toBe(resultUser.pass);
   });
-  it("put、異常系(指定したidがない場合)", async () => {
+  it("put、異常系(リクエストしたidがない場合、ステータスコードを見る)", async () => {
     const id = mockUser.id as number;
     // test用のモック関数作成
+    const getfunc = (id: number): Promise<User> => {
+      return new Promise<User>(function (resolve) {
+        resolve(nullUser);
+      });
+    };
     const putfunc = (id: number, user: User): Promise<User> => {
       return new Promise<User>(function (resolve) {
         resolve(mockUser);
       });
     };
     mockRepository.update = putfunc;
+    mockRepository.get = getfunc;
     const userService = new UserService(mockRepository);
 
     // create
     const result = await userService.update(id, mockUser);
 
     //ステータスのチェック
-    expect(HttpStatusCode.OK).toBe(result.statusCode);
-
-    const resultUser = result.value as User;
-    // 項目の検証
-    expect(mockUser.id).toBe(resultUser.id);
-    expect(mockUser.name).toBe(resultUser.name);
-    expect(mockUser.email).toBe(resultUser.email);
-    expect(mockUser.pass).toBe(resultUser.pass);
+    expect(HttpStatusCode.NotFound).toBe(result.statusCode);
   });
 });
 
@@ -245,6 +244,29 @@ describe("userAPI deleteテスト", () => {
     // 項目の検証
     expect(mockUser.id).toBe(resultId);
   });
+  it("delete、異常系(リクエストしたidがない場合、ステータスコードを見る)", async () => {
+    const id = mockUser.id as number;
+    // test用のモック関数作成
+    const getfunc = (id: number): Promise<User> => {
+      return new Promise<User>(function (resolve) {
+        resolve(nullUser);
+      });
+    };
+    const deletefunc = (id: number): Promise<number> => {
+      return new Promise<number>(function (resolve) {
+        resolve(id);
+      });
+    };
+    mockRepository.delete = deletefunc;
+    mockRepository.get = getfunc;
+    const userService = new UserService(mockRepository);
+
+    // create
+    const result = await userService.delete(id);
+
+    //ステータスのチェック
+    expect(HttpStatusCode.NotFound).toBe(result.statusCode);
+  });
 });
 
 // 単一のUserデータ
@@ -253,6 +275,13 @@ const mockUser: User = {
   name: "name1",
   email: "email1",
   pass: "pass1",
+};
+
+const nullUser: User = {
+  id: 0,
+  name: "",
+  email: "",
+  pass: "",
 };
 
 /**
