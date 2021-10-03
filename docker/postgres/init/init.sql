@@ -18,7 +18,7 @@ INSERT INTO users (name, email, pass) VALUES
 
 CREATE TABLE rundatas (
   id SERIAL NOT NULL,
-  time time NOT NULL,
+  time datetime NOT NULL,
   distance varchar(200) NOT NULL,
   user_id SERIAL NOT NULL,
   created_at TIMESTAMP NOT NULL DEFAULT current_timestamp,

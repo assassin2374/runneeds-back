@@ -1,5 +1,5 @@
 import { Client } from "pg";
-import { Rundata } from "../../model/Rundata";
+import { Rundata, RundataTable } from "../../model/Rundata";
 import { IRundataRepository } from "./IRundataRepository";
 
 // リポジトリ作成
@@ -17,97 +17,97 @@ export class RundataRepository implements IRundataRepository {
         SELECT 
           * 
         FROM
-          users
+          rundatas
         ORDER BY id DESC
       `,
     };
-    const result = await this.client.query<Rundata>(query);
-    // User[]型に格納して返却
-    const users = result.rows.map((user) => {
+    const result = await this.client.query<RundataTable>(query);
+    // Rundata[]型に格納して返却
+    const rundatas = result.rows.map((rundata) => {
       return {
-        id: user.id,
-        name: user.name,
-        email: user.email,
-        pass: user.pass,
-      } as User;
+        id: rundata.id,
+        time: rundata.time,
+        distance: rundata.distance,
+        userId: rundata.user_id,
+      } as Rundata;
     });
-    return users;
+    return rundatas;
   }
   // get作成
-  async get(id: number): Promise<User> {
+  async get(id: number): Promise<Rundata> {
     // SQLクエリ実行
     const query = {
-      text: "SELECT * FROM users WHERE id=$1",
+      text: "SELECT * FROM rundatas WHERE id=$1",
       values: [id],
     };
-    const result = await this.client.query<User>(query);
-    // User型に格納して返却
-    let user: User = {
+    const result = await this.client.query<RundataTable>(query);
+    // Rundata型に格納して返却
+    let rundata: Rundata = {
       id: 0,
-      name: "",
-      email: "",
-      pass: "",
+      time: null,
+      distance: "",
+      userId: "",
     };
     if (result.rowCount != 0) {
-      user = {
+      rundata = {
         id: result.rows[0].id,
-        name: result.rows[0].name,
-        email: result.rows[0].email,
-        pass: result.rows[0].pass,
+        time: result.rows[0].time,
+        distance: result.rows[0].distance,
+        userId: result.rows[0].user_id,
       };
     }
-    return user;
+    return rundata;
   }
   // create作成
-  async create(user: User): Promise<number> {
+  async create(rundata: Rundata): Promise<number> {
     // SQLクエリ実行
     const query = {
       text: `
       INSERT INTO 
-        users (name, email, pass) 
+        rundatas (time, distance, userId) 
       VALUES 
         ($1, $2, $3)
       RETURNING id
       `,
-      values: [user.name, user.email, user.pass],
+      values: [rundata.time, rundata.distance, rundata.userId],
     };
     const result = await this.client.query<{ id: number }>(query);
     return result.rows[0].id;
   }
   // update作成
-  async update(id: number, user: User): Promise<User> {
+  async update(id: number, rundata: Rundata): Promise<Rundata> {
     // SQLクエリ実行
     const query = {
       text: `
       UPDATE
-        users
+        rundatas
       SET
-        name = $1,
-        email = $2,
-        pass = $3
+        time = $1,
+        distance = $2,
+        userId = $3
       WHERE
         id = $4;
       `,
-      values: [user.name, user.email, user.pass, id],
+      values: [rundata.time, rundata.distance, rundata.userId, id],
     };
-    await this.client.query<User>(query);
+    await this.client.query<RundataTable>(query);
     // User型に格納（手動で格納、ホントはSELECTで返却値をもらう方が正しい）
-    const updateUser = {
+    const updateRundata = {
       id: id,
-      name: user.name,
-      email: user.email,
-      pass: user.pass,
+      time: rundata.time,
+      distance: rundata.distance,
+      userId: rundata.userId,
     };
-    return updateUser;
+    return updateRundata;
   }
   // get作成
   async delete(id: number): Promise<number> {
     // SQLクエリ実行
     const query = {
-      text: "DELETE FROM users where id=$1",
+      text: "DELETE FROM rundatas where id=$1",
       values: [id],
     };
-    await this.client.query<User>(query);
+    await this.client.query<RundataTable>(query);
 
     return id;
   }
