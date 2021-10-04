@@ -26,3 +26,9 @@ CREATE TABLE rundatas (
   PRIMARY KEY (id),
   FOREIGN KEY (user_id),
 );
+
+INSERT INTO rundatas (time, distance, user_id) VALUES
+('2021-06-06 01:00:00', '10000', 1),
+('2021-09-09 02:43:00', '25400', 1),
+('2021-10-01 02:00:00', '18800', 1)
+;
