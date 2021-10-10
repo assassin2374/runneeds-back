@@ -1,51 +1,51 @@
-import { IRundataRepository } from "../../repository/rundata/IRundataRepository";
-import { Rundata, validRundata } from "../../model/Rundata";
+import { IActivityRepository } from "../../repository/activity/IActivityRepository";
+import { Activity, validActivity } from "../../model/Activity";
 import { Result } from "../../model/utils/Result";
 import { HttpStatusCode } from "../../model/utils/HttpStatusCode";
 
 // サービス作成
-export class RundataService {
-  // IRundataRepositoryを引数でもらう
-  private repository: IRundataRepository;
-  constructor(repository: IRundataRepository) {
+export class ActivityService {
+  // IActivityRepositoryを引数でもらう
+  private repository: IActivityRepository;
+  constructor(repository: IActivityRepository) {
     this.repository = repository;
   }
 
-  async getAll(): Promise<Result<Rundata[]>> {
+  async getAll(): Promise<Result<Activity[]>> {
     // 返却用のResultオブジェクト作成
-    const result: Result<Rundata[]> = {};
+    const result: Result<Activity[]> = {};
     // 値取得
-    const rundataList = await this.repository.getAll();
-    console.log(rundataList);
+    const activityList = await this.repository.getAll();
+    console.log(activityList);
     // resultに結果を格納
-    result.value = rundataList;
+    result.value = activityList;
     result.statusCode = HttpStatusCode.OK;
 
     return result;
   }
 
-  async get(id: number): Promise<Result<Rundata>> {
+  async get(id: number): Promise<Result<Activity>> {
     // 返却用のResultオブジェクト作成
-    const result: Result<Rundata> = {};
+    const result: Result<Activity> = {};
     // 値取得
-    const rundata = await this.repository.get(id);
-    console.log(rundata);
+    const activity = await this.repository.get(id);
+    console.log(activity);
 
     // resultに結果を格納
-    if (validRundata(rundata) == false) {
+    if (validActivity(activity) == false) {
       result.statusCode = HttpStatusCode.NotFound;
       return result;
     }
-    result.value = rundata;
+    result.value = activity;
     result.statusCode = HttpStatusCode.OK;
     return result;
   }
 
-  async create(rundata: Rundata): Promise<Result<number>> {
+  async create(activity: Activity): Promise<Result<number>> {
     // 返却用のResultオブジェクト作成
     const result: Result<number> = {};
     // 値取得
-    const id = await this.repository.create(rundata);
+    const id = await this.repository.create(activity);
     console.log(id);
     // resultに結果を格納
     result.value = id;
@@ -53,21 +53,21 @@ export class RundataService {
     return result;
   }
 
-  async update(id: number, rundata: Rundata): Promise<Result<Rundata>> {
+  async update(id: number, activity: Activity): Promise<Result<Activity>> {
     // 返却用のResultオブジェクト作成
-    const result: Result<Rundata> = {};
+    const result: Result<Activity> = {};
     // 値取得
-    const fromRundata = await this.repository.get(id);
-    if (validRundata(fromRundata) == false) {
+    const fromActivity = await this.repository.get(id);
+    if (validActivity(fromActivity) == false) {
       // resultに結果を格納
       result.statusCode = HttpStatusCode.NotFound;
       return result;
     }
     // 値取得
-    const updateRundata = await this.repository.update(id, rundata);
-    console.log(updateRundata);
+    const updateActivity = await this.repository.update(id, activity);
+    console.log(updateActivity);
     // resultに結果を格納
-    result.value = updateRundata;
+    result.value = updateActivity;
     result.statusCode = HttpStatusCode.OK;
     return result;
   }
@@ -75,8 +75,8 @@ export class RundataService {
   async delete(id: number): Promise<Result<number>> {
     // 返却用のResultオブジェクト作成
     const result: Result<number> = {};
-    const fromRundata = await this.repository.get(id);
-    if (fromRundata.id == 0) {
+    const fromActivity = await this.repository.get(id);
+    if (fromActivity.id == 0) {
       // resultに結果を格納
       result.statusCode = HttpStatusCode.NotFound;
       return result;

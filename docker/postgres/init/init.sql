@@ -16,19 +16,19 @@ INSERT INTO users (name, email, pass) VALUES
 ('jerry', 'sample03@example.com', 'sample03')
 ;
 
-CREATE TABLE rundatas (
+CREATE TABLE activities (
   id SERIAL NOT NULL,
-  time datetime NOT NULL,
-  distance varchar(200) NOT NULL,
-  user_id SERIAL NOT NULL,
+  time TIMESTAMP NOT NULL,
+  distance int NOT NULL,
+  user_id int NOT NULL,
   created_at TIMESTAMP NOT NULL DEFAULT current_timestamp,
   updated_at TIMESTAMP NOT NULL DEFAULT current_timestamp,
   PRIMARY KEY (id),
-  FOREIGN KEY (user_id),
+  FOREIGN KEY (user_id) REFERENCES users(id)
 );
 
-INSERT INTO rundatas (time, distance, user_id) VALUES
-('2021-06-06 01:00:00', '10000', 1),
-('2021-09-09 02:43:00', '25400', 1),
-('2021-10-01 02:00:00', '18800', 1)
+INSERT INTO activities (time, distance, user_id) VALUES
+('2021-06-06 01:00:00', 10000, 1),
+('2021-09-09 02:43:00', 25400, 1),
+('2021-10-01 02:00:00', 18800, 1)
 ;

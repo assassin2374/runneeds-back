@@ -3,9 +3,9 @@ import { Client } from "pg";
 import { UserRepository } from "./repository/user/UserRepository";
 import { UserService } from "./service/user/UserService";
 import { UserController } from "./controller/user/UserController";
-import { RundataRepository } from "./repository/rundata/RundataRepository";
-import { RundataService } from "./service/rundata/RundataService";
-import { RundataController } from "./controller/rundata/RundataController";
+import { ActivityRepository } from "./repository/activity/ActivityRepository";
+import { ActivityService } from "./service/activity/ActivityService";
+import { ActivityController } from "./controller/activity/ActivityController";
 
 // Webサーバーのインスタンス化
 const app = express();
@@ -40,11 +40,11 @@ client
 const repository = new UserRepository(client);
 const service = new UserService(repository);
 const controller = new UserController(service);
-const rundataRepository = new RundataRepository(client);
-const rundataService = new RundataService(rundataRepository);
-const rundataController = new RundataController(rundataService);
+const activityRepository = new ActivityRepository(client);
+const activityService = new ActivityService(activityRepository);
+const activityController = new ActivityController(activityService);
 
-app.use("/api/", controller.router, rundataController.router);
+app.use("/api/", controller.router, activityController.router);
 
 // Webサーバ起動
 app.listen(port);

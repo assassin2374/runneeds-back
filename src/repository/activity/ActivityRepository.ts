@@ -1,0 +1,114 @@
+import { Client } from "pg";
+import { Activity, ActivityTable } from "../../model/Activity";
+import { IActivityRepository } from "./IActivityRepository";
+
+// リポジトリ作成
+export class ActivityRepository implements IActivityRepository {
+  // clientを引数でもらう
+  private client: Client;
+  constructor(client: Client) {
+    this.client = client;
+  }
+  // getAll作成
+  async getAll(): Promise<Activity[]> {
+    // SQLクエリ実行
+    const query = {
+      text: `
+        SELECT 
+          * 
+        FROM
+          activities
+        ORDER BY id DESC
+      `,
+    };
+    const result = await this.client.query<ActivityTable>(query);
+    // activity[]型に格納して返却
+    const activitys = result.rows.map((activity) => {
+      return {
+        id: activity.id,
+        time: activity.time,
+        distance: activity.distance,
+        userId: activity.user_id,
+      } as Activity;
+    });
+    return activitys;
+  }
+  // get作成
+  async get(id: number): Promise<Activity> {
+    // SQLクエリ実行
+    const query = {
+      text: "SELECT * FROM activities WHERE id=$1",
+      values: [id],
+    };
+    const result = await this.client.query<ActivityTable>(query);
+    // activity型に格納して返却
+    let activity: Activity = {
+      id: 0,
+      time: null,
+      distance: "",
+      userId: "",
+    };
+    if (result.rowCount != 0) {
+      activity = {
+        id: result.rows[0].id,
+        time: result.rows[0].time,
+        distance: result.rows[0].distance,
+        userId: result.rows[0].user_id,
+      };
+    }
+    return activity;
+  }
+  // create作成
+  async create(activity: Activity): Promise<number> {
+    // SQLクエリ実行
+    const query = {
+      text: `
+      INSERT INTO 
+        activities (time, distance, user_id) 
+      VALUES 
+        ($1, $2, $3)
+      RETURNING id
+      `,
+      values: [activity.time, activity.distance, activity.userId],
+    };
+    const result = await this.client.query<{ id: number }>(query);
+    return result.rows[0].id;
+  }
+  // update作成
+  async update(id: number, activity: Activity): Promise<Activity> {
+    // SQLクエリ実行
+    const query = {
+      text: `
+      UPDATE
+        activities
+      SET
+        time = $1,
+        distance = $2,
+        user_id = $3
+      WHERE
+        id = $4;
+      `,
+      values: [activity.time, activity.distance, activity.userId, id],
+    };
+    await this.client.query<ActivityTable>(query);
+    // User型に格納（手動で格納、ホントはSELECTで返却値をもらう方が正しい）
+    const updateactivity = {
+      id: id,
+      time: activity.time,
+      distance: activity.distance,
+      userId: activity.userId,
+    };
+    return updateactivity;
+  }
+  // get作成
+  async delete(id: number): Promise<number> {
+    // SQLクエリ実行
+    const query = {
+      text: "DELETE FROM activities where id=$1",
+      values: [id],
+    };
+    await this.client.query<ActivityTable>(query);
+
+    return id;
+  }
+}

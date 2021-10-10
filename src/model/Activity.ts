@@ -1,11 +1,11 @@
-export type Rundata = {
+export type Activity = {
   id?: number;
   time: Date | null;
   distance: string;
   userId: string;
 };
 
-export type RundataTable = {
+export type ActivityTable = {
   id?: number;
   time: Date | null;
   distance: string;
@@ -13,9 +13,9 @@ export type RundataTable = {
 };
 
 // eslint-disable-next-line @typescript-eslint/ban-types
-export function validRundata(object: Object): boolean {
-  const rundata = object as Rundata;
-  if (!rundata.time || !rundata.distance || !rundata.userId) {
+export function validActivity(object: Object): boolean {
+  const activity = object as Activity;
+  if (!activity.time || !activity.distance || !activity.userId) {
     return false;
   }
   return true;
