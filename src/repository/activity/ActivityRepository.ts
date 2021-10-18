@@ -26,7 +26,8 @@ export class ActivityRepository implements IActivityRepository {
     const activitys = result.rows.map((activity) => {
       return {
         id: activity.id,
-        time: activity.time,
+        start_time: activity.startTime,
+        goal_time: activity.startTime,
         distance: activity.distance,
         userId: activity.user_id,
       } as Activity;

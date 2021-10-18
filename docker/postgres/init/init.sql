@@ -18,7 +18,8 @@ INSERT INTO users (name, email, pass) VALUES
 
 CREATE TABLE activities (
   id SERIAL NOT NULL,
-  time TIMESTAMP NOT NULL,
+  start_time TIMESTAMP NOT NULL,
+  goal_time TIMESTAMP NOT NULL,
   distance int NOT NULL,
   user_id int NOT NULL,
   created_at TIMESTAMP NOT NULL DEFAULT current_timestamp,
@@ -27,8 +28,8 @@ CREATE TABLE activities (
   FOREIGN KEY (user_id) REFERENCES users(id)
 );
 
-INSERT INTO activities (time, distance, user_id) VALUES
-('2021-06-06 01:00:00', 10000, 1),
-('2021-09-09 02:43:00', 25400, 1),
-('2021-10-01 02:00:00', 18800, 1)
+INSERT INTO activities (start_time, goal_time, distance, user_id) VALUES
+('2021-06-06 18:00:00', '2021-06-06 19:00:00', 10000, 1),
+('2021-09-09 19:00:00', '2021-06-06 21:43:00', 25400, 1),
+('2021-10-01 18:00:00', '2021-06-06 20:00:00', 18800, 1)
 ;
