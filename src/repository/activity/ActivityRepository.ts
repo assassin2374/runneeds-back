@@ -26,8 +26,8 @@ export class ActivityRepository implements IActivityRepository {
     const activitys = result.rows.map((activity) => {
       return {
         id: activity.id,
-        start_time: activity.startTime,
-        goal_time: activity.startTime,
+        startTime: activity.start_time,
+        goalTime: activity.goal_time,
         distance: activity.distance,
         userId: activity.user_id,
       } as Activity;
@@ -45,14 +45,16 @@ export class ActivityRepository implements IActivityRepository {
     // activity型に格納して返却
     let activity: Activity = {
       id: 0,
-      time: null,
-      distance: "",
+      startTime: null,
+      goalTime: null,
+      distance: 0,
       userId: "",
     };
     if (result.rowCount != 0) {
       activity = {
         id: result.rows[0].id,
-        time: result.rows[0].time,
+        startTime: result.rows[0].start_time,
+        goalTime: result.rows[0].goal_time,
         distance: result.rows[0].distance,
         userId: result.rows[0].user_id,
       };
@@ -65,12 +67,17 @@ export class ActivityRepository implements IActivityRepository {
     const query = {
       text: `
       INSERT INTO 
-        activities (time, distance, user_id) 
+        activities (start_time, goal_time, distance, user_id) 
       VALUES 
-        ($1, $2, $3)
+        ($1, $2, $3, $4)
       RETURNING id
       `,
-      values: [activity.time, activity.distance, activity.userId],
+      values: [
+        activity.startTime,
+        activity.goalTime,
+        activity.distance,
+        activity.userId,
+      ],
     };
     const result = await this.client.query<{ id: number }>(query);
     return result.rows[0].id;
@@ -83,19 +90,27 @@ export class ActivityRepository implements IActivityRepository {
       UPDATE
         activities
       SET
-        time = $1,
-        distance = $2,
-        user_id = $3
+        start_time = $1,
+        goal_time = $2,
+        distance = $3,
+        user_id = $4
       WHERE
-        id = $4;
+        id = $5;
       `,
-      values: [activity.time, activity.distance, activity.userId, id],
+      values: [
+        activity.startTime,
+        activity.goalTime,
+        activity.distance,
+        activity.userId,
+        id,
+      ],
     };
     await this.client.query<ActivityTable>(query);
-    // User型に格納（手動で格納、ホントはSELECTで返却値をもらう方が正しい）
+    // Activity型に格納（手動で格納、ホントはSELECTで返却値をもらう方が正しい）
     const updateactivity = {
       id: id,
-      time: activity.time,
+      startTime: activity.startTime,
+      goalTime: activity.goalTime,
       distance: activity.distance,
       userId: activity.userId,
     };

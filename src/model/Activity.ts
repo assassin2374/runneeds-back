@@ -8,8 +8,8 @@ export type Activity = {
 
 export type ActivityTable = {
   id?: number;
-  startTime: Date | null;
-  goalTime: Date | null;
+  start_time: Date | null;
+  goal_time: Date | null;
   distance: number;
   user_id: string;
 };
