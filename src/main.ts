@@ -1,4 +1,5 @@
 import express from "express";
+import cors from "cors";
 import { Client } from "pg";
 import { UserRepository } from "./repository/user/UserRepository";
 import { UserService } from "./service/user/UserService";
@@ -16,8 +17,11 @@ app.use(express.urlencoded({ extended: true }));
 // JSONを解析
 app.use(express.json());
 
+// corsを設定
+app.use(cors());
+
 // port番号を指定
-const port = process.env.PORT || 3000;
+const port = 4000;
 
 // Connectionを定義する
 // データベース設定
